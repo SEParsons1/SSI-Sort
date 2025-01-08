@@ -39,7 +39,7 @@ function fitAreaDisplayText() {
 
   // Make it just a tad smaller after it fits
   if (fontSize > 0) {
-    fontSize -= 2; // Adjust this value if you want more or less reduction
+    fontSize -= 4; // Adjust this value if you want more or less reduction
     areaDisplay.style.fontSize = fontSize + 'px';
   }
 }
