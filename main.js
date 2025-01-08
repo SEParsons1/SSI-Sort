@@ -89,8 +89,14 @@ function refocusInputIfNeeded(e) {
 // Re-run kiosk logic when returning to the page
 // so the layout and text size are correct after coming back from homescreen.
 window.addEventListener('pageshow', function() {
-  adjustViewport();
-  fitAreaDisplayText();
+  // Immediately reset any leftover transforms
+  document.body.style.transform = 'none';
+
+  // Wait a bit so Chrome can reflow after returning from background
+  setTimeout(() => {
+    adjustViewport();
+    fitAreaDisplayText();
+  }, 300); // Adjust timing as needed
 });
 
 // Event listeners
