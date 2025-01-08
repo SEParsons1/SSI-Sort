@@ -54,6 +54,17 @@
       border-radius: 10px;
       outline: none;
     }
+
+    /* Style for the new Recenter button */
+    #recenterButton {
+      font-size: clamp(18px, 4vw, 24px);
+      padding: 10px 20px;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #eee;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +79,11 @@
     autofocus
     aria-label="Type last 3 digits"
   />
+
+  <!-- New Recenter Button -->
+  <button id="recenterButton" onclick="recenter()" aria-label="Recenter the input field">
+    Recenter
+  </button>
 
   <script src="areas.js"></script>
   <script src="main.js"></script>
