@@ -68,7 +68,7 @@ function adjustViewport() {
   // If the viewport height shrinks (keyboard open), move content up
   if (currentViewportHeight < window.innerHeight) {
     const inputField = document.getElementById('myInput');
-    const offset = (currentViewportHeight - inputField.offsetHeight) / 2 
+    const offset = (currentViewportHeight - inputField.offsetHeight) / 2
                    - inputField.offsetHeight;
     body.style.transform = 'translateY(' + offset + 'px)';
   } else {
@@ -89,14 +89,23 @@ function refocusInputIfNeeded(e) {
 // Re-run kiosk logic when returning to the page
 // so the layout and text size are correct after coming back from homescreen.
 window.addEventListener('pageshow', function() {
-  // Immediately reset any leftover transforms
+  // 1) Immediately reset any leftover transforms
   document.body.style.transform = 'none';
 
-  // Wait a bit so Chrome can reflow after returning from background
+  // 2) Use a short delay to re-apply adjustments
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
-  }, 500); // Adjust timing as needed
+
+    // 3) If there's text, do a second pass after an additional delay
+    const areaDisplay = document.getElementById('areaDisplay');
+    if (areaDisplay.textContent.trim().length > 0) {
+      setTimeout(() => {
+        adjustViewport();
+        fitAreaDisplayText();
+      }, 200); // Adjust timing as needed
+    }
+  }, 300); // Initial delay
 });
 
 // Event listeners
