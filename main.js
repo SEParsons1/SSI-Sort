@@ -96,7 +96,7 @@ window.addEventListener('pageshow', function() {
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
-  }, 300); // Adjust timing as needed
+  }, 500); // Adjust timing as needed
 });
 
 // Event listeners
