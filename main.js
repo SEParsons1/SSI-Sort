@@ -18,7 +18,7 @@ function handleInput() {
       displayArea(input.value);
     }, 100);
   } else {
-    clearAreaDisplay();
+    clearAreaDisplay(); 
   }
 }
 
@@ -57,15 +57,8 @@ function clearAreaDisplay() {
   const areaDisplay = document.getElementById('areaDisplay');
   areaDisplay.textContent = "";
 
-  // 1) Reset any leftover transforms
+  // FORCE the layout to reset if the text is cleared
   document.body.style.transform = 'none';
-
-  // 2) Re-focus the input and re-run viewport logic after a short delay
-  setTimeout(() => {
-    const inputField = document.getElementById('myInput');
-    inputField.focus();
-    adjustViewport(); // Recalculate positions to match the newly focused input
-  }, 200);
 }
 
 /**
@@ -86,21 +79,23 @@ function adjustViewport() {
   }
 }
 
-// Keep the input focused if a user taps or clicks outside it
+// Keep the input focused if a user taps or clicks outside it,
+// so the keyboard remains open.
 function refocusInputIfNeeded(e) {
   const inputField = document.getElementById('myInput');
   if (!inputField.contains(e.target)) {
-    e.preventDefault();
-    inputField.focus();
+    e.preventDefault();  // Prevent losing focus
+    inputField.focus();  // Re-focus the input
   }
 }
 
 // Re-run kiosk logic when returning to the page
+// so the layout and text size are correct after coming back from homescreen.
 window.addEventListener('pageshow', function() {
-  // Immediately reset transform
+  // Immediately reset any leftover transforms
   document.body.style.transform = 'none';
 
-  // Small delay so the browser can fully reflow
+  // Give the browser a moment to stabilize viewport
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
@@ -114,9 +109,12 @@ window.visualViewport.addEventListener('resize', adjustViewport);
 window.addEventListener('orientationchange', fitAreaDisplayText);
 window.addEventListener('resize', fitAreaDisplayText);
 
+// Prevent default scrolling on touch devices (kiosk style)
 document.addEventListener('touchmove', function(event) {
   event.preventDefault();
 }, { passive: false });
 
+// Keep the keyboard from closing when tapping outside the input on touch devices
 document.addEventListener('touchstart', refocusInputIfNeeded, { passive: false });
+// Also handle mouse/touchpad inputs on non-touch devices
 document.addEventListener('mousedown', refocusInputIfNeeded);
