@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Postal Code Sorter</title>
+  <style>
+    /* 
+      Animated gradient background for a more interesting look.
+      We keep your kiosk style: center everything, no scroll, full height.
+    */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+
+      /* Kiosk style */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh; 
+      overflow: hidden;
+
+      /* Animate this gradient */
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    /* Keyframes for the animated background */
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* 
+      Keep #areaDisplay exactly as in your original code 
+      so the JS can dynamically size the text properly.
+    */
+    #areaDisplay {
+      width: 100%;
+      white-space: nowrap;       /* Keep text on one line */
+      overflow: hidden;          /* Prevent horizontal scroll */
+      text-overflow: ellipsis;   /* If text is too large, it will clip */
+      text-align: center;
+      color: white;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      line-height: 1.2;
+      /* NO font-size set here, so JS can do its job */
+    }
+
+    /* 
+      The input. We keep clamp() because it doesn’t affect areaDisplay's dynamic resizing.
+    */
+    #myInput {
+      width: 90%;
+      font-size: clamp(25px, 6vw, 50px);
+      padding: 12px 20px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="areaDisplay"></div> <!-- Display area name -->
+  
+  <input 
+    type="text" 
+    id="myInput" 
+    oninput="handleInput()" 
+    placeholder="Type last 3 digits" 
+    autofocus 
+    aria-label="Type last 3 digits"
+  />
+
+  <!-- 1) Load the postal code dictionary FIRST -->
+  <script src="areas.js"></script>
+  
+  <!-- 2) Then load the main kiosk logic code -->
+  <script src="main.js"></script>
+</body>
+</html>
