@@ -1,5 +1,3 @@
-// main.js
-
 let inputTimer; // Timer to delay final processing on input
 
 function handleInput() {
@@ -36,6 +34,12 @@ function fitAreaDisplayText() {
   // Decrease font size until text fits on one line
   while (areaDisplay.scrollWidth > bodyWidth && fontSize > 0) {
     fontSize--;
+    areaDisplay.style.fontSize = fontSize + 'px';
+  }
+
+  // Make it just a tad smaller after it fits
+  if (fontSize > 0) {
+    fontSize -= 5; // Adjust this value if you want more or less reduction
     areaDisplay.style.fontSize = fontSize + 'px';
   }
 }
