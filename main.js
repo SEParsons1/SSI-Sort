@@ -46,9 +46,10 @@ function fitAreaDisplayText() {
 
 function displayArea(postalCode) {
   const areaDisplay = document.getElementById('areaDisplay');
+  // 'areas' comes from areas.js
   const area = areas[postalCode] || "INVALID";
   areaDisplay.textContent = area;
-  
+
   // After updating text, fit it to the width
   fitAreaDisplayText();
 }
@@ -77,6 +78,18 @@ function adjustViewport() {
   } else {
     body.style.transform = 'none';
   }
+}
+
+// Manual “recenter” function for the user to fix layout issues
+function recenter() {
+  // Immediately reset any leftover transforms
+  document.body.style.transform = 'none';
+
+  // Give the browser a moment to stabilize the viewport, then adjust
+  setTimeout(() => {
+    adjustViewport();
+    fitAreaDisplayText();
+  }, 300);
 }
 
 // Keep the input focused if a user taps or clicks outside it,
