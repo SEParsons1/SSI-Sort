@@ -74,18 +74,21 @@ function refocusInputIfNeeded(e) {
 window.addEventListener('pageshow', function() {
   document.body.style.transform = 'none';
 
-  setTimeout(() => {
-    adjustViewport();
-    fitAreaDisplayText();
+  const areaDisplay = document.getElementById('areaDisplay');
+  const hasTextDisplayed = areaDisplay.textContent.trim().length > 0;
 
-    const areaDisplay = document.getElementById('areaDisplay');
-    if (areaDisplay.textContent.trim().length > 0) {
-      setTimeout(() => {
-        adjustViewport();
-        fitAreaDisplayText();
-      }, 200);
-    }
-  }, 300);
+  if (hasTextDisplayed) {
+    document.getElementById('myInput').focus();
+    setTimeout(() => {
+      adjustViewport();
+      fitAreaDisplayText();
+    }, 300);
+  } else {
+    setTimeout(() => {
+      adjustViewport();
+      fitAreaDisplayText();
+    }, 300);
+  }
 });
 
 window.addEventListener('resize', adjustViewport);
