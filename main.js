@@ -39,14 +39,14 @@ function fitAreaDisplayText() {
 
   // Make it just a tad smaller after it fits
   if (fontSize > 0) {
-    fontSize -= 5; // Adjust this value if you want more or less reduction
+    fontSize -= 5; // Adjust as needed
     areaDisplay.style.fontSize = fontSize + 'px';
   }
 }
 
 function displayArea(postalCode) {
   const areaDisplay = document.getElementById('areaDisplay');
-  // 'areas' should come from areas.js
+  // 'areas' comes from areas.js
   const area = areas[postalCode] || "INVALID";
   areaDisplay.textContent = area;
   
@@ -63,32 +63,48 @@ function clearAreaDisplay() {
 }
 
 /**
- * (Simplified) Adjust layout when the virtual keyboard is shown or hidden.
- * In this version, we are NOT automatically offsetting the page to prevent jumping.
+ * Automatically adjust layout so the input is visible above the keyboard if needed.
  */
 function adjustViewport() {
-  // We’ll just reset transform if the keyboard is dismissed.
-  // Remove the logic that tries to move the input up automatically.
-  if (window.visualViewport.height >= window.innerHeight) {
-    document.body.style.transform = 'none';
+  const body = document.body;
+  const inputField = document.getElementById('myInput');
+  const viewportHeight = window.visualViewport.height;
+  
+  // If the viewport is smaller than the full window, keyboard is likely open.
+  if (viewportHeight < window.innerHeight) {
+    // Get how far down the input is from the top of the screen.
+    const rect = inputField.getBoundingClientRect();
+    const inputBottom = rect.bottom;
+    
+    // If the input is covered by the keyboard, shift the body up
+    // so that the bottom of the input is ~20px above the bottom of the viewport.
+    if (inputBottom > viewportHeight - 20) {
+      const overlap = inputBottom - (viewportHeight - 20);
+      body.style.transform = `translateY(-${overlap}px)`;
+    }
+  } else {
+    // If keyboard isn't open, reset
+    body.style.transform = 'none';
   }
 }
 
 /**
- * Manual “Recenter” function for the user to fix layout issues if/when needed.
+ * Manual “Recenter” function for the user to fix layout issues if/when needed
+ * (e.g., after returning from Home screen).
  */
 function recenter() {
   // Immediately reset any leftover transforms
   document.body.style.transform = 'none';
-
-  // Give the browser a moment to stabilize the viewport, then fit text
+  
+  // Wait a moment for the viewport to settle (especially after re-focusing the input)
   setTimeout(() => {
+    adjustViewport();
     fitAreaDisplayText();
   }, 300);
 }
 
 // Keep the input focused if a user taps or clicks outside it,
-// so the keyboard remains open.
+// so the keyboard remains open (kiosk style).
 function refocusInputIfNeeded(e) {
   const inputField = document.getElementById('myInput');
   if (!inputField.contains(e.target)) {
@@ -98,12 +114,11 @@ function refocusInputIfNeeded(e) {
 }
 
 // Re-run kiosk logic when returning to the page
-// so the layout and text size are correct after coming back from homescreen.
 window.addEventListener('pageshow', function() {
-  // Immediately reset any leftover transforms
+  // Immediately reset transforms
   document.body.style.transform = 'none';
 
-  // Give the browser a moment to stabilize viewport
+  // Let the browser stabilize, then adjust
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
@@ -111,18 +126,18 @@ window.addEventListener('pageshow', function() {
 });
 
 // Event listeners
+// 1. Whenever window size changes or phone orientation changes, try to keep input visible.
 window.addEventListener('resize', adjustViewport);
 window.visualViewport.addEventListener('resize', adjustViewport);
 
 window.addEventListener('orientationchange', fitAreaDisplayText);
 window.addEventListener('resize', fitAreaDisplayText);
 
-// Prevent default scrolling on touch devices (kiosk style)
+// 2. Prevent default scrolling on touch devices (kiosk style).
 document.addEventListener('touchmove', function(event) {
   event.preventDefault();
 }, { passive: false });
 
-// Keep the keyboard from closing when tapping outside the input on touch devices
+// 3. Keep the keyboard from closing when tapping outside the input.
 document.addEventListener('touchstart', refocusInputIfNeeded, { passive: false });
-// Also handle mouse/touchpad inputs on non-touch devices
 document.addEventListener('mousedown', refocusInputIfNeeded);
