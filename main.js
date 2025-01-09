@@ -18,7 +18,7 @@ function handleInput() {
       displayArea(input.value);
     }, 100);
   } else {
-    clearAreaDisplay(); 
+    clearAreaDisplay();
   }
 }
 
@@ -39,17 +39,16 @@ function fitAreaDisplayText() {
 
   // Make it just a tad smaller after it fits
   if (fontSize > 0) {
-    fontSize -= 5; // Adjust as needed
+    fontSize -= 5; // Adjust this value if you want more or less reduction
     areaDisplay.style.fontSize = fontSize + 'px';
   }
 }
 
 function displayArea(postalCode) {
   const areaDisplay = document.getElementById('areaDisplay');
-  // 'areas' comes from areas.js
   const area = areas[postalCode] || "INVALID";
   areaDisplay.textContent = area;
-  
+
   // After updating text, fit it to the width
   fitAreaDisplayText();
 }
@@ -63,55 +62,26 @@ function clearAreaDisplay() {
 }
 
 /**
- * Automatically shift the body up if the Recenter button (or input) 
- * is covered by the keyboard. 
+ * Adjust layout when the virtual keyboard is shown or hidden.
  */
 function adjustViewport() {
+  const currentViewportHeight = window.visualViewport.height;
   const body = document.body;
-  const inputField = document.getElementById('myInput');
-  const recenterBtn = document.getElementById('recenterButton');
-  const viewportHeight = window.visualViewport.height;
 
-  // If the keyboard is open (viewport height is smaller than full window)
-  if (viewportHeight < window.innerHeight) {
-    // Check the positions of both the input AND the recenter button
-    const inputRect = inputField.getBoundingClientRect();
-    const buttonRect = recenterBtn.getBoundingClientRect();
-
-    // We want to ensure BOTH are visible above the keyboard
-    const bottomMost = Math.max(inputRect.bottom, buttonRect.bottom);
-
-    // If the bottom-most element is covered by the keyboard, shift up
-    // so it's 20px above the keyboard
-    if (bottomMost > viewportHeight - 20) {
-      const overlap = bottomMost - (viewportHeight - 20);
-      body.style.transform = `translateY(-${overlap}px)`;
-    }
+  // If the viewport height shrinks (keyboard open), move content up
+  if (currentViewportHeight < window.innerHeight) {
+    const inputField = document.getElementById('myInput');
+    const offset =
+      (currentViewportHeight - inputField.offsetHeight) / 2 -
+      inputField.offsetHeight;
+    body.style.transform = "translateY(" + offset + "px)";
   } else {
-    // Keyboard not open, reset
-    body.style.transform = 'none';
+    body.style.transform = "none";
   }
 }
 
-/**
- * Manual “Recenter” function: 
- *  - Resets transforms 
- *  - Re-applies the logic to see if we need to shift up
- *  - Re-fit the display text.
- */
-function recenter() {
-  // Immediately reset transforms
-  document.body.style.transform = 'none';
-  
-  // Let the viewport settle, then adjust
-  setTimeout(() => {
-    adjustViewport();
-    fitAreaDisplayText();
-  }, 300);
-}
-
 // Keep the input focused if a user taps or clicks outside it,
-// so the keyboard remains open (kiosk style).
+// so the keyboard remains open.
 function refocusInputIfNeeded(e) {
   const inputField = document.getElementById('myInput');
   if (!inputField.contains(e.target)) {
@@ -121,11 +91,12 @@ function refocusInputIfNeeded(e) {
 }
 
 // Re-run kiosk logic when returning to the page
+// so the layout and text size are correct after coming back from homescreen.
 window.addEventListener('pageshow', function() {
-  // Immediately reset transforms
+  // Immediately reset any leftover transforms
   document.body.style.transform = 'none';
 
-  // Let the browser stabilize, then adjust
+  // Give the browser a moment to stabilize viewport
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
@@ -133,19 +104,39 @@ window.addEventListener('pageshow', function() {
 });
 
 // Event listeners
-// 1. Whenever window size changes or phone orientation changes, we check 
-//    if we need to shift the body up or re-fit the text.
 window.addEventListener('resize', adjustViewport);
 window.visualViewport.addEventListener('resize', adjustViewport);
 
 window.addEventListener('orientationchange', fitAreaDisplayText);
 window.addEventListener('resize', fitAreaDisplayText);
 
-// 2. Prevent default scrolling on touch devices (kiosk style).
-document.addEventListener('touchmove', function(event) {
-  event.preventDefault();
-}, { passive: false });
+// Prevent default scrolling on touch devices (kiosk style)
+document.addEventListener(
+  "touchmove",
+  function(event) {
+    event.preventDefault();
+  },
+  { passive: false }
+);
 
-// 3. Keep the keyboard from closing when tapping outside the input.
-document.addEventListener('touchstart', refocusInputIfNeeded, { passive: false });
-document.addEventListener('mousedown', refocusInputIfNeeded);
+// Keep the keyboard from closing when tapping outside the input on touch devices
+document.addEventListener("touchstart", refocusInputIfNeeded, { passive: false });
+// Also handle mouse/touchpad inputs on non-touch devices
+document.addEventListener("mousedown", refocusInputIfNeeded);
+
+/* 
+ * -------------- ADDED THIS --------------
+ * Manual “Recenter” function. 
+ * This simply resets any transform and re-applies your existing logic.
+ */
+function recenter() {
+  // Immediately reset transforms
+  document.body.style.transform = 'none';
+
+  // Then wait a bit for the viewport to settle, 
+  // re-check the layout, and re-fit the text:
+  setTimeout(() => {
+    adjustViewport();
+    fitAreaDisplayText();
+  }, 300);
+}
