@@ -63,40 +63,47 @@ function clearAreaDisplay() {
 }
 
 /**
- * Automatically adjust layout so the input is visible above the keyboard if needed.
+ * Automatically shift the body up if the Recenter button (or input) 
+ * is covered by the keyboard. 
  */
 function adjustViewport() {
   const body = document.body;
   const inputField = document.getElementById('myInput');
+  const recenterBtn = document.getElementById('recenterButton');
   const viewportHeight = window.visualViewport.height;
-  
-  // If the viewport is smaller than the full window, keyboard is likely open.
+
+  // If the keyboard is open (viewport height is smaller than full window)
   if (viewportHeight < window.innerHeight) {
-    // Get how far down the input is from the top of the screen.
-    const rect = inputField.getBoundingClientRect();
-    const inputBottom = rect.bottom;
-    
-    // If the input is covered by the keyboard, shift the body up
-    // so that the bottom of the input is ~20px above the bottom of the viewport.
-    if (inputBottom > viewportHeight - 20) {
-      const overlap = inputBottom - (viewportHeight - 20);
+    // Check the positions of both the input AND the recenter button
+    const inputRect = inputField.getBoundingClientRect();
+    const buttonRect = recenterBtn.getBoundingClientRect();
+
+    // We want to ensure BOTH are visible above the keyboard
+    const bottomMost = Math.max(inputRect.bottom, buttonRect.bottom);
+
+    // If the bottom-most element is covered by the keyboard, shift up
+    // so it's 20px above the keyboard
+    if (bottomMost > viewportHeight - 20) {
+      const overlap = bottomMost - (viewportHeight - 20);
       body.style.transform = `translateY(-${overlap}px)`;
     }
   } else {
-    // If keyboard isn't open, reset
+    // Keyboard not open, reset
     body.style.transform = 'none';
   }
 }
 
 /**
- * Manual “Recenter” function for the user to fix layout issues if/when needed
- * (e.g., after returning from Home screen).
+ * Manual “Recenter” function: 
+ *  - Resets transforms 
+ *  - Re-applies the logic to see if we need to shift up
+ *  - Re-fit the display text.
  */
 function recenter() {
-  // Immediately reset any leftover transforms
+  // Immediately reset transforms
   document.body.style.transform = 'none';
   
-  // Wait a moment for the viewport to settle (especially after re-focusing the input)
+  // Let the viewport settle, then adjust
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
@@ -126,7 +133,8 @@ window.addEventListener('pageshow', function() {
 });
 
 // Event listeners
-// 1. Whenever window size changes or phone orientation changes, try to keep input visible.
+// 1. Whenever window size changes or phone orientation changes, we check 
+//    if we need to shift the body up or re-fit the text.
 window.addEventListener('resize', adjustViewport);
 window.visualViewport.addEventListener('resize', adjustViewport);
 
