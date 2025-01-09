@@ -46,10 +46,10 @@ function fitAreaDisplayText() {
 
 function displayArea(postalCode) {
   const areaDisplay = document.getElementById('areaDisplay');
-  // 'areas' comes from areas.js
+  // 'areas' should come from areas.js
   const area = areas[postalCode] || "INVALID";
   areaDisplay.textContent = area;
-
+  
   // After updating text, fit it to the width
   fitAreaDisplayText();
 }
@@ -63,31 +63,26 @@ function clearAreaDisplay() {
 }
 
 /**
- * Adjust layout when the virtual keyboard is shown or hidden.
+ * (Simplified) Adjust layout when the virtual keyboard is shown or hidden.
+ * In this version, we are NOT automatically offsetting the page to prevent jumping.
  */
 function adjustViewport() {
-  const currentViewportHeight = window.visualViewport.height;
-  const body = document.body;
-
-  // If the viewport height shrinks (keyboard open), move content up
-  if (currentViewportHeight < window.innerHeight) {
-    const inputField = document.getElementById('myInput');
-    const offset = (currentViewportHeight - inputField.offsetHeight) / 2
-                   - inputField.offsetHeight;
-    body.style.transform = 'translateY(' + offset + 'px)';
-  } else {
-    body.style.transform = 'none';
+  // We’ll just reset transform if the keyboard is dismissed.
+  // Remove the logic that tries to move the input up automatically.
+  if (window.visualViewport.height >= window.innerHeight) {
+    document.body.style.transform = 'none';
   }
 }
 
-// Manual “recenter” function for the user to fix layout issues
+/**
+ * Manual “Recenter” function for the user to fix layout issues if/when needed.
+ */
 function recenter() {
   // Immediately reset any leftover transforms
   document.body.style.transform = 'none';
 
-  // Give the browser a moment to stabilize the viewport, then adjust
+  // Give the browser a moment to stabilize the viewport, then fit text
   setTimeout(() => {
-    adjustViewport();
     fitAreaDisplayText();
   }, 300);
 }
