@@ -46,6 +46,7 @@ function fitAreaDisplayText() {
 
 function displayArea(postalCode) {
   const areaDisplay = document.getElementById('areaDisplay');
+  // 'areas' from areas.js
   const area = areas[postalCode] || "INVALID";
   areaDisplay.textContent = area;
 
@@ -63,6 +64,7 @@ function clearAreaDisplay() {
 
 /**
  * Adjust layout when the virtual keyboard is shown or hidden.
+ * (Exactly as in your original code.)
  */
 function adjustViewport() {
   const currentViewportHeight = window.visualViewport.height;
@@ -80,8 +82,7 @@ function adjustViewport() {
   }
 }
 
-// Keep the input focused if a user taps or clicks outside it,
-// so the keyboard remains open.
+// Keep the input focused if a user taps or clicks outside it (kiosk style).
 function refocusInputIfNeeded(e) {
   const inputField = document.getElementById('myInput');
   if (!inputField.contains(e.target)) {
@@ -91,7 +92,6 @@ function refocusInputIfNeeded(e) {
 }
 
 // Re-run kiosk logic when returning to the page
-// so the layout and text size are correct after coming back from homescreen.
 window.addEventListener('pageshow', function() {
   // Immediately reset any leftover transforms
   document.body.style.transform = 'none';
@@ -103,10 +103,15 @@ window.addEventListener('pageshow', function() {
   }, 300);
 });
 
-// Event listeners
-window.addEventListener('resize', adjustViewport);
-window.visualViewport.addEventListener('resize', adjustViewport);
+/* 
+ * Removed these lines to avoid auto-shifting the moment the keyboard opens:
+ * 
+ * window.addEventListener('resize', adjustViewport);
+ * window.visualViewport.addEventListener('resize', adjustViewport);
+ */
 
+// We'll still keep re-fitting text on orientation change or window resize, 
+// but we won't move the body there, so it doesn't jump on first typing.
 window.addEventListener('orientationchange', fitAreaDisplayText);
 window.addEventListener('resize', fitAreaDisplayText);
 
@@ -124,17 +129,16 @@ document.addEventListener("touchstart", refocusInputIfNeeded, { passive: false }
 // Also handle mouse/touchpad inputs on non-touch devices
 document.addEventListener("mousedown", refocusInputIfNeeded);
 
-/* 
+/*
  * -------------- ADDED THIS --------------
  * Manual “Recenter” function. 
- * This simply resets any transform and re-applies your existing logic.
+ * Resets transforms, then calls your existing logic as a fallback.
  */
 function recenter() {
   // Immediately reset transforms
   document.body.style.transform = 'none';
 
-  // Then wait a bit for the viewport to settle, 
-  // re-check the layout, and re-fit the text:
+  // Then wait a bit for the viewport to settle, re-check layout, and re-fit text
   setTimeout(() => {
     adjustViewport();
     fitAreaDisplayText();
