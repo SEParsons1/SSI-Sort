@@ -18,7 +18,7 @@ function handleInput() {
       displayArea(input.value);
     }, 100);
   } else {
-    clearAreaDisplay();
+    clearAreaDisplay(); 
   }
 }
 
@@ -39,14 +39,14 @@ function fitAreaDisplayText() {
 
   // Make it just a tad smaller after it fits
   if (fontSize > 0) {
-    fontSize -= 5; // Adjust this value if you want more or less reduction
+    fontSize -= 5; // Adjust if you want more or less reduction
     areaDisplay.style.fontSize = fontSize + 'px';
   }
 }
 
 function displayArea(postalCode) {
   const areaDisplay = document.getElementById('areaDisplay');
-  // 'areas' from areas.js
+  // 'areas' object is presumably in areas.js
   const area = areas[postalCode] || "INVALID";
   areaDisplay.textContent = area;
 
@@ -64,7 +64,7 @@ function clearAreaDisplay() {
 
 /**
  * Adjust layout when the virtual keyboard is shown or hidden.
- * (Exactly as in your original code.)
+ * (This is your original code.)
  */
 function adjustViewport() {
   const currentViewportHeight = window.visualViewport.height;
@@ -82,7 +82,7 @@ function adjustViewport() {
   }
 }
 
-// Keep the input focused if a user taps or clicks outside it (kiosk style).
+// Keep the input focused if a user taps or clicks outside it (kiosk style)
 function refocusInputIfNeeded(e) {
   const inputField = document.getElementById('myInput');
   if (!inputField.contains(e.target)) {
@@ -93,7 +93,7 @@ function refocusInputIfNeeded(e) {
 
 // Re-run kiosk logic when returning to the page
 window.addEventListener('pageshow', function() {
-  // Immediately reset any leftover transforms
+  // Immediately reset transforms
   document.body.style.transform = 'none';
 
   // Give the browser a moment to stabilize viewport
@@ -103,41 +103,33 @@ window.addEventListener('pageshow', function() {
   }, 300);
 });
 
-/* 
- * Removed these lines to avoid auto-shifting the moment the keyboard opens:
- * 
- * window.addEventListener('resize', adjustViewport);
- * window.visualViewport.addEventListener('resize', adjustViewport);
- */
+// Event listeners (as you originally provided)
+window.addEventListener('resize', adjustViewport);
+window.visualViewport.addEventListener('resize', adjustViewport);
 
-// We'll still keep re-fitting text on orientation change or window resize, 
-// but we won't move the body there, so it doesn't jump on first typing.
 window.addEventListener('orientationchange', fitAreaDisplayText);
 window.addEventListener('resize', fitAreaDisplayText);
 
 // Prevent default scrolling on touch devices (kiosk style)
-document.addEventListener(
-  "touchmove",
-  function(event) {
-    event.preventDefault();
-  },
-  { passive: false }
-);
+document.addEventListener('touchmove', function(event) {
+  event.preventDefault();
+}, { passive: false });
 
 // Keep the keyboard from closing when tapping outside the input on touch devices
-document.addEventListener("touchstart", refocusInputIfNeeded, { passive: false });
+document.addEventListener('touchstart', refocusInputIfNeeded, { passive: false });
 // Also handle mouse/touchpad inputs on non-touch devices
-document.addEventListener("mousedown", refocusInputIfNeeded);
+document.addEventListener('mousedown', refocusInputIfNeeded);
 
-/*
+/* 
  * -------------- ADDED THIS --------------
- * Manual “Recenter” function. 
- * Resets transforms, then calls your existing logic as a fallback.
+ * Manual “Recenter” function: 
+ * Resets transforms, then calls your own adjustViewport() & fitAreaDisplayText().
+ * This is only for the user to fix layout after returning from Home if needed.
  */
 function recenter() {
   // Immediately reset transforms
   document.body.style.transform = 'none';
-
+  
   // Then wait a bit for the viewport to settle, re-check layout, and re-fit text
   setTimeout(() => {
     adjustViewport();
